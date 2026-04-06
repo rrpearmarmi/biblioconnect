@@ -38,7 +38,7 @@
                         <tr class="hover:bg-gray-50 uppercase tracking-tight">
                             <td class="px-6 py-6 text-primary">{{ book.title }}</td>
                             <td class="px-6 py-6 text-secondary">
-                                {% if book.authors|length > 0 %}{{ book.authors[0].fullName }}{% else %}N/A{% endif %}
+                                {% if book.authors|length > 0 %}{{ book.authors[0].name }}{% else %}N/A{% endif %}
                             </td>
                             <td class="px-6 py-6 font-bold uppercase tracking-widest">
                                 <span class="{% if book.availableCopies > 0 %}text-green-600{% else %}text-red-500{% endif %}">

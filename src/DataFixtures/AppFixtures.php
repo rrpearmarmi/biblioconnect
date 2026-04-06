@@ -25,7 +25,7 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // 1. Create Languages
+       
         $languages = [];
         $langsData = [
             ['name' => 'Français', 'code' => 'fr'],
@@ -41,7 +41,6 @@ class AppFixtures extends Fixture
             $languages[] = $lang;
         }
 
-        // 2. Create Categories
         $categories = [];
         $catData = [
             ['name' => 'Roman', 'slug' => 'roman'],
@@ -60,7 +59,6 @@ class AppFixtures extends Fixture
             $categories[] = $cat;
         }
 
-        // 3. Create Authors
         $authors = [];
         for ($i = 1; $i <= 10; $i++) {
             $author = new Author();
@@ -70,10 +68,8 @@ class AppFixtures extends Fixture
             $authors[] = $author;
         }
 
-        // 4. Create Users (1 Admin, 2 Librarians, 10 Users)
         $users = [];
 
-        // Admin
         $admin = new User();
         $admin->setEmail('admin@biblioconnect.fr');
         $admin->setRoles(['ROLE_ADMIN']);
@@ -82,7 +78,6 @@ class AppFixtures extends Fixture
         $admin->setLastName('System');
         $manager->persist($admin);
 
-        // Librarians
         for ($i = 1; $i <= 2; $i++) {
             $lib = new User();
             $lib->setEmail("bibliothecaire$i@biblioconnect.fr");
@@ -93,7 +88,6 @@ class AppFixtures extends Fixture
             $manager->persist($lib);
         }
 
-        // Standard Users
         for ($i = 1; $i <= 10; $i++) {
             $user = new User();
             $user->setEmail("user$i@gmail.com");
@@ -105,7 +99,6 @@ class AppFixtures extends Fixture
             $users[] = $user;
         }
 
-        // 5. Create Books (30 books)
         $books = [];
         for ($i = 1; $i <= 30; $i++) {
             $book = new Book();
@@ -118,7 +111,6 @@ class AppFixtures extends Fixture
             $book->setTotalCopies($copies);
             $book->setAvailableCopies($copies);
 
-            // Add 1 to 3 random categories
             $numCats = rand(1, 3);
             $shuffledCats = $categories;
             shuffle($shuffledCats);
@@ -126,7 +118,6 @@ class AppFixtures extends Fixture
                 $book->addCategory($shuffledCats[$c]);
             }
 
-            // Add 1 to 2 random authors
             $numAuthors = rand(1, 2);
             $shuffledAuthors = $authors;
             shuffle($shuffledAuthors);
@@ -138,7 +129,6 @@ class AppFixtures extends Fixture
             $books[] = $book;
         }
 
-        // 6. Create Reservations (mix of returned and pending)
         for ($i = 1; $i <= 20; $i++) {
             $res = new Reservation();
             $res->setUser($users[array_rand($users)]);
@@ -148,8 +138,7 @@ class AppFixtures extends Fixture
             
             $statusChoice = rand(1, 10);
             if ($statusChoice <= 4) {
-                // Returned
-                $res->setStatus('returned');
+                    $res->setStatus('returned');
                 $start = new \DateTime('-' . rand(20, 60) . ' days');
                 $end = clone $start;
                 $end->modify('+14 days');
@@ -160,7 +149,6 @@ class AppFixtures extends Fixture
                 $res->setEndDate($end);
                 $res->setReturnedAt($returned);
             } elseif ($statusChoice <= 8) {
-                // Active
                 $res->setStatus('active');
                 $start = new \DateTime('-' . rand(1, 10) . ' days');
                 $end = clone $start;
@@ -169,12 +157,10 @@ class AppFixtures extends Fixture
                 $res->setStartDate($start);
                 $res->setEndDate($end);
                 
-                // Reduce available copies
                 if ($book->getAvailableCopies() > 0) {
                     $book->setAvailableCopies($book->getAvailableCopies() - 1);
                 }
             } else {
-                // Pending
                 $res->setStatus('pending');
                 $start = new \DateTime('+' . rand(1, 5) . ' days');
                 $end = clone $start;
@@ -187,24 +173,54 @@ class AppFixtures extends Fixture
             $manager->persist($res);
         }
 
-        // 7. Create Reviews (only if they theoretically returned it, but let's just assign random reviews)
-        // using array_rand safely. To enforce logic nicely, I'll just skip complex logic for mock data.
+        // 7. Create Reviews (Ensure unique user-book pairs using array indices)
+        $reviewedPairs = [];
         for ($i = 1; $i <= 15; $i++) {
+            $userIndex = array_rand($users);
+            $bookIndex = array_rand($books);
+            $pairKey = $userIndex . '-' . $bookIndex;
+
+            if (in_array($pairKey, $reviewedPairs)) {
+                $i--; // Retry
+                continue;
+            }
+
+            $user = $users[$userIndex];
+            $book = $books[$bookIndex];
+
             $review = new Review();
-            $review->setUser($users[array_rand($users)]);
-            $review->setBook($books[array_rand($books)]);
+            $review->setUser($user);
+            $review->setBook($book);
             $review->setRating(rand(3, 5));
             $review->setComment("Ce livre est vraiment génial ! Je le recommande vivement. (Commentaire $i)");
             $review->setIsModerated(true);
+            $review->setIsVisible(true);
             $manager->persist($review);
+            
+            $reviewedPairs[] = $pairKey;
         }
 
-        // 8. Create Favorites
+        // 8. Create Favorites (Ensure unique user-book pairs using array indices)
+        $favoritePairs = [];
         for ($i = 1; $i <= 10; $i++) {
+            $userIndex = array_rand($users);
+            $bookIndex = array_rand($books);
+            $pairKey = $userIndex . '-' . $bookIndex;
+
+            if (in_array($pairKey, $reviewedPairs) || in_array($pairKey, $favoritePairs)) {
+                $i--; // Retry
+                continue;
+            }
+
+            $user = $users[$userIndex];
+            $book = $books[$bookIndex];
+
             $fav = new Favorite();
-            $fav->setUser($users[array_rand($users)]);
-            $fav->setBook($books[array_rand($books)]);
+            $fav->setUser($user);
+            $fav->setBook($book);
             $manager->persist($fav);
+            
+            $favoritePairs[] = $pairKey;
         }
 
         $manager->flush();

@@ -34,7 +34,7 @@ class BookController extends AbstractController
                 ->leftJoin('b.authors', 'a')
                 ->leftJoin('b.categories', 'c')
                 ->where('b.title LIKE :query')
-                ->orWhere('a.fullName LIKE :query')
+                ->orWhere('a.name LIKE :query')
                 ->orWhere('c.name LIKE :query')
                 ->setParameter('query', '%' . $query . '%')
                 ->getQuery()

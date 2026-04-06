@@ -39,6 +39,11 @@ class LibrarianController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Ouvrage ajouté au catalogue.');
+            
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_admin_dashboard');
+            }
+            
             return $this->redirectToRoute('app_librarian_dashboard');
         }
 
@@ -61,6 +66,11 @@ class LibrarianController extends AbstractController
             
             $entityManager->flush();
             $this->addFlash('success', 'Ouvrage mis à jour.');
+            
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_admin_dashboard');
+            }
+            
             return $this->redirectToRoute('app_librarian_dashboard');
         }
 

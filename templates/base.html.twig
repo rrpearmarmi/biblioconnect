@@ -62,7 +62,17 @@
             <div class="flex justify-between h-20">
                 <!-- Branding -->
                 <div class="flex items-center">
-                    <a href="{{ path('app_home') }}" class="flex items-center gap-2">
+                    {% set brand_url = path('app_home') %}
+                    {% if app.user %}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            {% set brand_url = path('app_admin_dashboard') %}
+                        {% elseif is_granted('ROLE_LIBRARIAN') %}
+                            {% set brand_url = path('app_librarian_dashboard') %}
+                        {% else %}
+                            {% set brand_url = path('app_user_dashboard') %}
+                        {% endif %}
+                    {% endif %}
+                    <a href="{{ brand_url }}" class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-primary flex items-center justify-center text-white font-bold text-lg">B</div>
                         <span class="font-bold text-xl tracking-tighter uppercase">BiblioConnect</span>
                     </a>
@@ -71,12 +81,13 @@
                 <!-- Navigation -->
                 <nav class="hidden md:flex items-center space-x-10 text-sm font-semibold tracking-wide uppercase">
                     {% if app.user %}
-                        <a href="{{ path('app_book_catalog') }}" class="hover:text-secondary border-b-2 border-transparent hover:border-primary py-1">Catalogue</a>
-                        
+                        {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
+                            <a href="{{ path('app_book_catalog') }}" class="hover:text-secondary border-b-2 border-transparent hover:border-primary py-1">Catalogue</a>
+                        {% endif %}
                         {% if is_granted('ROLE_ADMIN') %}
-                            <a href="{{ path('app_admin_dashboard') }}" class="text-accent hover:opacity-80">Admin</a>
+                            <a href="{{ path('app_admin_dashboard') }}" class="hover:text-secondary">Administration</a>
                         {% elseif is_granted('ROLE_LIBRARIAN') %}
-                            <a href="{{ path('app_librarian_dashboard') }}" class="text-accent hover:opacity-80">Librarian</a>
+                            <a href="{{ path('app_librarian_dashboard') }}" class="hover:text-secondary">Bibliothécaire</a>
                         {% else %}
                             <a href="{{ path('app_user_dashboard') }}" class="hover:text-secondary">Mon Profil</a>
                         {% endif %}
@@ -93,6 +104,27 @@
                     <button @click="open = !open" class="text-primary p-2">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
+                    
+                    <div x-show="open" @click.away="open = false" x-cloak class="absolute top-20 right-0 w-full bg-white border-b border-gray-100 z-50 p-4 space-y-4 text-xs font-bold uppercase tracking-widest flex flex-col items-center">
+                        {% if app.user %}
+                            {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
+                                <a href="{{ path('app_book_catalog') }}" class="hover:text-secondary py-2 w-full text-center">Catalogue</a>
+                            {% endif %}
+                            
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_admin_dashboard') }}" class="hover:text-secondary py-2 w-full text-center">Administration</a>
+                            {% elseif is_granted('ROLE_LIBRARIAN') %}
+                                <a href="{{ path('app_librarian_dashboard') }}" class="hover:text-secondary py-2 w-full text-center">Bibliothécaire</a>
+                            {% else %}
+                                <a href="{{ path('app_user_dashboard') }}" class="hover:text-secondary py-2 w-full text-center">Mon Profil</a>
+                            {% endif %}
+                            
+                            <a href="{{ path('app_logout') }}" class="text-secondary hover:text-red-600 transition py-2 w-full text-center">Déconnexion</a>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="hover:text-secondary py-2 w-full text-center">Connexion</a>
+                            <a href="{{ path('app_register') }}" class="bg-primary text-white px-6 py-4 hover:bg-black transition w-full text-center">S'inscrire</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,6 +147,7 @@
     </main>
 
     <!-- Footer -->
+    {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
     <footer class="border-t border-gray-100 bg-surface sm:py-16 py-8 mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
@@ -142,6 +175,7 @@
             &copy; {{ 'now'|date('Y') }} Biblioconnect. Simple process. Clear results.
         </div>
     </footer>
+    {% endif %}
 
 </body>
 </html>

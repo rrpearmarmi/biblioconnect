@@ -17,7 +17,13 @@
                     </p>
                     <div class="mt-10 flex items-center gap-x-6">
                         {% if app.user %}
-                            <a href="{{ path('app_book_catalog') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Explorer le Catalogue</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_admin_dashboard') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Administration</a>
+                            {% elseif is_granted('ROLE_LIBRARIAN') %}
+                                <a href="{{ path('app_librarian_dashboard') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Gestion Catalogue</a>
+                            {% else %}
+                                <a href="{{ path('app_book_catalog') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Explorer le Catalogue</a>
+                            {% endif %}
                             <a href="{{ path('app_user_dashboard') }}" class="text-sm font-semibold leading-6 text-primary hover:underline">Mon Espace &rarr;</a>
                         {% else %}
                             <a href="{{ path('app_register') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Commencer maintenant</a>
@@ -40,6 +46,7 @@
     </div>
 
     <!-- Featured Section (Restricted Content) -->
+    {% if not app.user or (not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN')) %}
     <div class="bg-surface py-24 sm:py-32">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-end mb-16">
@@ -74,4 +81,5 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 {% endblock %}

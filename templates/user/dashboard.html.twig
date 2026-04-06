@@ -75,9 +75,12 @@
                         <div class="aspect-[2/3] bg-surface flex items-center justify-center mb-4 group-hover:scale-95 transition">
                              <svg class="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"></path></svg>
                         </div>
-                        <h3 class="text-[10px] font-bold uppercase tracking-tight text-primary leading-tight truncate">
+                        <h3 class="text-[10px] font-bold uppercase tracking-tight text-primary leading-tight truncate mb-2">
                             <a href="{{ path('app_book_detail', {'id': favorite.book.id}) }}">{{ favorite.book.title }}</a>
                         </h3>
+                        <form action="{{ path('app_favorite_toggle', {'id': favorite.book.id}) }}" method="post">
+                            <button type="submit" class="text-[8px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition">Retirer</button>
+                        </form>
                     </div>
                 {% endfor %}
             </div>

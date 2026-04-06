@@ -57,14 +57,20 @@
                 </div>
 
                 <div class="flex flex-wrap gap-4 mt-12 pt-12 border-t border-gray-100">
-                    {% if book.availableCopies > 0 %}
-                        <form method="post">
-                            <button type="submit" class="bg-primary text-white px-12 py-5 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Réserver l'Ouvrage</button>
+                    {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
+                        {% if book.availableCopies > 0 %}
+                            <form action="{{ path('app_reservation_create', {'id': book.id}) }}" method="post">
+                                <button type="submit" class="bg-primary text-white px-12 py-5 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Réserver l'Ouvrage</button>
+                            </form>
+                        {% endif %}
+                        <form action="{{ path('app_favorite_toggle', {'id': book.id}) }}" method="post">
+                            <button type="submit" class="border border-primary text-primary px-12 py-5 font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition text-sm">Ajouter aux Favoris</button>
                         </form>
+                    {% else %}
+                        <div class="p-6 border border-dashed border-gray-200 w-full text-center">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-secondary italic">Consultation administrateur : les fonctionnalités de réservation et de favoris sont réservées aux usagers.</p>
+                        </div>
                     {% endif %}
-                    <form method="post">
-                        <button type="submit" class="border border-primary text-primary px-12 py-5 font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition text-sm">Ajouter aux Favoris</button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -78,33 +84,42 @@
             <h2 class="text-xs font-bold uppercase tracking-widest text-secondary mb-4 underline decoration-gray-300 underline-offset-8">Commentaires</h2>
             <p class="text-3xl font-bold tracking-tighter text-primary uppercase">Critiques des lecteurs</p>
         </div>
-        <button class="text-sm font-bold uppercase tracking-wider text-primary border-b border-primary pb-1 hover:opacity-70 transition">Donner mon avis</button>
+        {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
+            <button class="text-sm font-bold uppercase tracking-wider text-primary border-b border-primary pb-1 hover:opacity-70 transition">Donner mon avis</button>
+        {% endif %}
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        <!-- Review Form -->
+        <!-- Review Form or Multi-task Message -->
         <div class="bg-white border border-gray-100 p-8 sm:p-12 h-fit">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-8 underline decoration-gray-100 underline-offset-8">Donner mon avis</h3>
-            <form action="{{ path('app_review_add', {'id': book.id}) }}" method="post" class="space-y-8">
-                <div x-data="{ rating: 5 }">
-                    <label class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-4">Ma Note (1-5)</label>
-                    <div class="flex gap-2">
-                        <template x-for="i in 5">
-                            <button type="button" @click="rating = i" class="transition-transform hover:scale-110">
-                                <svg class="w-6 h-6" :class="i <= rating ? 'text-primary' : 'text-gray-100'" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                            </button>
-                        </template>
+            {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_LIBRARIAN') %}
+                <h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-8 underline decoration-gray-100 underline-offset-8">Donner mon avis</h3>
+                <form action="{{ path('app_review_add', {'id': book.id}) }}" method="post" class="space-y-8">
+                    <div x-data="{ rating: 5 }">
+                        <label class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-4">Ma Note (1-5)</label>
+                        <div class="flex gap-2">
+                            <template x-for="i in 5">
+                                <button type="button" @click="rating = i" class="transition-transform hover:scale-110">
+                                    <svg class="w-6 h-6" :class="i <= rating ? 'text-primary' : 'text-gray-100'" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                </button>
+                            </template>
+                        </div>
+                        <input type="hidden" name="rating" x-model="rating">
                     </div>
-                    <input type="hidden" name="rating" x-model="rating">
-                </div>
 
-                <div>
-                    <label for="comment" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">Mon Commentaire</label>
-                    <textarea name="comment" id="comment" rows="4" class="w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors" placeholder="Qu'avez-vous pensé de cet ouvrage ?"></textarea>
-                </div>
+                    <div>
+                        <label for="comment" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">Mon Commentaire</label>
+                        <textarea name="comment" id="comment" rows="4" class="w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors" placeholder="Qu'avez-vous pensé de cet ouvrage ?"></textarea>
+                    </div>
 
-                <button type="submit" class="w-full bg-primary text-white py-4 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Publier l'avis</button>
-            </form>
+                    <button type="submit" class="w-full bg-primary text-white py-4 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Publier l'avis</button>
+                </form>
+            {% else %}
+                <div class="text-center py-12">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-4 underline decoration-gray-100 underline-offset-8">Mode Gestion</h3>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary leading-relaxed">En tant que membre du personnel, vous consultez cet ouvrage pour la modération et l'inventaire. <br><br> Les interactions sociales sont désactivées pour ce compte.</p>
+                </div>
+            {% endif %}
         </div>
 
         <!-- Reviews List -->

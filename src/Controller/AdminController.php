@@ -22,12 +22,20 @@ class AdminController extends AbstractController
         ReservationRepository $reservationRepository,
         ReviewRepository $reviewRepository
     ): Response {
+        $books = $bookRepository->findAll();
+        $reservations = $reservationRepository->findBy([], ['createdAt' => 'DESC']);
+        $pendingReservations = $reservationRepository->findBy(['status' => 'pending'], ['createdAt' => 'DESC']);
+        $users = $userRepository->findAll();
+
         return $this->render('admin/dashboard.html.twig', [
-            'total_books' => count($bookRepository->findAll()),
-            'total_users' => count($userRepository->findAll()),
-            'total_reservations' => count($reservationRepository->findAll()),
+            'total_books' => count($books),
+            'total_users' => count($users),
+            'total_reservations' => count($reservations),
             'reviews_to_moderate' => $reviewRepository->findBy(['isModerated' => false]),
-            'users' => $userRepository->findAll(),
+            'users' => $users,
+            'books' => $books,
+            'reservations' => $reservations,
+            'pending_reservations' => $pendingReservations,
         ]);
     }
 

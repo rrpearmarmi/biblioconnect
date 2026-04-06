@@ -6,7 +6,11 @@
 <div class="bg-surface py-12 border-b border-gray-100">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex mb-8 text-[10px] font-bold uppercase tracking-widest text-secondary overflow-x-auto whitespace-nowrap pb-2">
-            <a href="{{ path('app_librarian_dashboard') }}" class="hover:text-primary transition">Dashboard</a>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_admin_dashboard') }}" class="hover:text-primary transition">Administration</a>
+            {% else %}
+                <a href="{{ path('app_librarian_dashboard') }}" class="hover:text-primary transition">Dashboard</a>
+            {% endif %}
             <span class="mx-2">/</span>
             <span class="text-primary">{{ title }}</span>
         </nav>
@@ -64,7 +68,11 @@
                 </div>
 
                 <div class="pt-8 flex justify-end gap-4">
-                    <a href="{{ path('app_librarian_dashboard') }}" class="px-8 py-4 font-bold uppercase tracking-widest text-secondary border border-gray-100 hover:text-primary hover:border-primary transition text-xs text-center">Annuler</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_admin_dashboard') }}" class="px-8 py-4 font-bold uppercase tracking-widest text-secondary border border-gray-100 hover:text-primary hover:border-primary transition text-xs text-center">Annuler</a>
+                    {% else %}
+                        <a href="{{ path('app_librarian_dashboard') }}" class="px-8 py-4 font-bold uppercase tracking-widest text-secondary border border-gray-100 hover:text-primary hover:border-primary transition text-xs text-center">Annuler</a>
+                    {% endif %}
                     <button type="submit" class="bg-primary text-white px-12 py-4 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Enregistrer</button>
                 </div>
             </div>

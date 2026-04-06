@@ -13,6 +13,14 @@ class UserController extends AbstractController
     #[Route('', name: 'app_user_dashboard')]
     public function index(FavoriteRepository $favoriteRepository): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
+        
+        if ($this->isGranted('ROLE_LIBRARIAN')) {
+            return $this->redirectToRoute('app_librarian_dashboard');
+        }
+
         $user = $this->getUser();
         
         return $this->render('user/dashboard.html.twig', [

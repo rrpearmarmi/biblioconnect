@@ -34,11 +34,7 @@ class RegistrationFormType extends AbstractType
                     new NotBlank(['message' => 'Veuillez renseigner votre nom']),
                 ],
             ])
-            ->add('phone', TextType::class, [
-                'label' => 'Téléphone',
-                'required' => false,
-                'attr' => ['class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm'],
-            ])
+
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => ['class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm'],
