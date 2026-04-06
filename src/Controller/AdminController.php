@@ -44,4 +44,32 @@ class AdminController extends AbstractController
             'reviews_to_moderate' => $reviewRepository->findBy(['isModerated' => false]),
         ]);
     }
+
+    #[Route('/user/toggle-role/{id}', name: 'app_admin_user_toggle_role')]
+    public function toggleRole(User $user, EntityManagerInterface $entityManager): Response
+    {
+        $roles = $user->getRoles();
+        if (in_array('ROLE_LIBRARIAN', $roles)) {
+            $user->setRoles(['ROLE_USER']);
+            $this->addFlash('success', 'Rôle Bibliothécaire retiré.');
+        } else {
+            $user->setRoles(['ROLE_USER', 'ROLE_LIBRARIAN']);
+            $this->addFlash('success', 'Rôle Bibliothécaire ajouté.');
+        }
+        
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_admin_dashboard');
+    }
+
+    #[Route('/user/ban/{id}', name: 'app_admin_user_ban')]
+    public function banUser(User $user, EntityManagerInterface $entityManager): Response
+    {
+        // Simple "ban" logic: add a specific role or flag
+        $user->setRoles(['ROLE_BANNED']);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Utilisateur banni.');
+        return $this->redirectToRoute('app_admin_dashboard');
+    }
 }
