@@ -17,12 +17,15 @@ class AdminController extends AbstractController
     public function index(
         BookRepository $bookRepository,
         UserRepository $userRepository,
-        ReservationRepository $reservationRepository
+        ReservationRepository $reservationRepository,
+        ReviewRepository $reviewRepository
     ): Response {
         return $this->render('admin/dashboard.html.twig', [
             'total_books' => count($bookRepository->findAll()),
             'total_users' => count($userRepository->findAll()),
             'total_reservations' => count($reservationRepository->findAll()),
+            'reviews_to_moderate' => $reviewRepository->findBy(['isModerated' => false]),
+            'users' => $userRepository->findAll(),
         ]);
     }
 

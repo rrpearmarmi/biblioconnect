@@ -10,14 +10,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class UserController extends AbstractController
 {
     #[Route('', name: 'app_user_dashboard')]
-    public function index(): Response
+    public function index(FavoriteRepository $favoriteRepository): Response
     {
         $user = $this->getUser();
         
         return $this->render('user/dashboard.html.twig', [
             'user' => $user,
             'reservations' => $user->getReservations(),
-            'favorites' => [], // Add fetching from repository later if needed
+            'favorites' => $favoriteRepository->findBy(['user' => $user]),
             'reviews' => $user->getReviews(),
         ]);
     }

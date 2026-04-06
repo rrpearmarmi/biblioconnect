@@ -10,16 +10,15 @@
             <h1 class="text-3xl font-bold tracking-tighter text-primary uppercase mb-8">Espace Bibliothécaire</h1>
         </div>
         <div class="mb-8 flex gap-4">
-            <button class="bg-primary text-white px-6 py-2 font-bold uppercase tracking-widest hover:bg-black transition text-[10px]">Ajouter un ouvrage</button>
-            <button class="border border-primary text-primary px-6 py-2 font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition text-[10px]">Importer CSV</button>
+            <a href="{{ path('app_librarian_book_new') }}" class="bg-primary text-white px-6 py-2 font-bold uppercase tracking-widest hover:bg-black transition text-[10px]">Ajouter un ouvrage</a>
         </div>
     </div>
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" x-data="{ tab: 'catalog' }">
     <div class="flex gap-12 border-b border-gray-100 mb-16 overflow-x-auto whitespace-nowrap">
-        <button @click="tab = 'catalog'" :class="tab === 'catalog' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Catalogue & Inventaire</button>
-        <button @click="tab = 'history'" :class="tab === 'history' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Historique des Réservations</button>
+        <button @click="tab = 'catalog'" :class="tab === 'catalog' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Catalogue & Inventaire ({{ books|length }})</button>
+        <button @click="tab = 'history'" :class="tab === 'history' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Historique Global ({{ reservations|length }})</button>
     </div>
 
     <!-- Catalog Management Tab -->
@@ -29,19 +28,29 @@
                 <thead>
                     <tr class="bg-surface border-b border-gray-100 uppercase tracking-widest text-[10px] font-bold text-secondary">
                         <th class="px-6 py-4">Ouvrage</th>
-                        <th class="px-6 py-4">Stock</th>
+                        <th class="px-6 py-4">Auteur</th>
+                        <th class="px-6 py-4">Stock Diponible</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50 text-sm">
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-6 font-bold uppercase tracking-tighter text-primary">Le Petit Prince</td>
-                        <td class="px-6 py-6 text-xs text-secondary font-bold">12 / 12</td>
-                        <td class="px-6 py-6 text-right space-x-4">
-                            <button class="text-primary hover:underline font-bold uppercase text-[10px]">Modifier</button>
-                            <button class="text-red-600 hover:underline font-bold uppercase text-[10px]">Supprimer</button>
-                        </td>
-                    </tr>
+                <tbody class="divide-y divide-gray-50 text-xs font-bold">
+                    {% for book in books %}
+                        <tr class="hover:bg-gray-50 uppercase tracking-tight">
+                            <td class="px-6 py-6 text-primary">{{ book.title }}</td>
+                            <td class="px-6 py-6 text-secondary">
+                                {% if book.authors|length > 0 %}{{ book.authors[0].fullName }}{% else %}N/A{% endif %}
+                            </td>
+                            <td class="px-6 py-6 font-bold uppercase tracking-widest">
+                                <span class="{% if book.availableCopies > 0 %}text-green-600{% else %}text-red-500{% endif %}">
+                                    {{ book.availableCopies }} / {{ book.totalCopies }} ex.
+                                </span>
+                            </td>
+                            <td class="px-6 py-6 text-right space-x-4">
+                                <a href="{{ path('app_librarian_book_edit', {'id': book.id}) }}" class="text-primary hover:underline font-bold uppercase text-[10px]">Modifier</a>
+                                <button class="text-red-600 hover:underline font-bold uppercase text-[10px]">Supprimer</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -49,9 +58,38 @@
 
     <!-- Reservations History Tab -->
     <div x-show="tab === 'history'" x-cloak class="space-y-6">
-        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
-            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucune reservation en cours dans le système.</p>
-        </div>
+        {% if reservations is empty %}
+            <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+                <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucune reservation en cours dans le système.</p>
+            </div>
+        {% else %}
+            <div class="bg-white border border-gray-100 overflow-hidden overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface border-b border-gray-100 uppercase tracking-widest text-[10px] font-bold text-secondary">
+                            <th class="px-6 py-4">Utilisateur</th>
+                            <th class="px-6 py-4">Ouvrage</th>
+                            <th class="px-6 py-4">Dates</th>
+                            <th class="px-6 py-4">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 text-[10px] font-bold">
+                        {% for res in reservations %}
+                            <tr class="hover:bg-gray-50 uppercase tracking-tighter">
+                                <td class="px-6 py-6 text-secondary">{{ res.user.email }}</td>
+                                <td class="px-6 py-6 text-primary">{{ res.book.title }}</td>
+                                <td class="px-6 py-6 text-gray-400">{{ res.startDate|date('d/m/Y') }} &rarr; {{ res.endDate|date('d/m/Y') }}</td>
+                                <td class="px-6 py-6">
+                                    <span class="{% if res.status == 'pending' %}text-accent{% elseif res.status == 'returned' %}text-green-600{% else %}text-red-500{% endif %}">
+                                        {{ res.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

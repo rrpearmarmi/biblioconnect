@@ -30,9 +30,12 @@ class BookController extends AbstractController
         $query = $request->query->get('q');
         
         if ($query) {
-            // Simple search by title for now. In a real app we would use QueryBuilder
             $books = $bookRepository->createQueryBuilder('b')
+                ->leftJoin('b.authors', 'a')
+                ->leftJoin('b.categories', 'c')
                 ->where('b.title LIKE :query')
+                ->orWhere('a.fullName LIKE :query')
+                ->orWhere('c.name LIKE :query')
                 ->setParameter('query', '%' . $query . '%')
                 ->getQuery()
                 ->getResult();

@@ -7,14 +7,33 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-xs font-bold uppercase tracking-widest text-secondary mb-2 underline decoration-gray-300 underline-offset-8">Accès Total</h2>
         <h1 class="text-3xl font-bold tracking-tighter text-primary uppercase mb-8">Administration Système</h1>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-t border-gray-100 mt-8">
+            <div>
+                <span class="block text-[8px] uppercase tracking-[0.2em] text-gray-400 mb-2">Utilisateurs</span>
+                <span class="text-3xl font-bold tracking-tighter text-primary">{{ total_users }}</span>
+            </div>
+            <div>
+                <span class="block text-[8px] uppercase tracking-[0.2em] text-gray-400 mb-2">Livres</span>
+                <span class="text-3xl font-bold tracking-tighter text-primary">{{ total_books }}</span>
+            </div>
+            <div>
+                <span class="block text-[8px] uppercase tracking-[0.2em] text-gray-400 mb-2">Réservations</span>
+                <span class="text-3xl font-bold tracking-tighter text-primary">{{ total_reservations }}</span>
+            </div>
+             <div>
+                <span class="block text-[8px] uppercase tracking-[0.2em] text-gray-400 mb-2">À Modérer</span>
+                <span class="text-3xl font-bold tracking-tighter {% if reviews_to_moderate|length > 0 %}text-red-600 animate-pulse{% else %}text-primary{% endif %}">{{ reviews_to_moderate|length }}</span>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" x-data="{ tab: 'users' }">
     <div class="flex gap-12 border-b border-gray-100 mb-16 overflow-x-auto whitespace-nowrap">
-        <button @click="tab = 'users'" :class="tab === 'users' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Rôles & Profils</button>
-        <button @click="tab = 'moderation'" :class="tab === 'moderation' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Modération Commentaires</button>
-        <button @click="tab = 'system'" :class="tab === 'system' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">État du Système</button>
+        <button @click="tab = 'users'" :class="tab === 'users' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Gestion des Comptes ({{ users|length }})</button>
+        <button @click="tab = 'moderation'" :class="tab === 'moderation' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Centre de Modération ({{ reviews_to_moderate|length }})</button>
+        <button @click="tab = 'system'" :class="tab === 'system' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Santé du Système</button>
     </div>
 
     <!-- Users Management Tab -->
@@ -24,21 +43,25 @@
                 <thead>
                     <tr class="bg-surface border-b border-gray-100 uppercase tracking-widest text-[10px] font-bold text-secondary">
                         <th class="px-6 py-4">Utilisateur</th>
-                        <th class="px-6 py-4">Rôle</th>
+                        <th class="px-6 py-4">Rôles</th>
+                        <th class="px-6 py-4">Inscrit le</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50 text-sm">
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-6 font-bold uppercase tracking-tighter text-primary">{{ app.user.email }}</td>
-                        <td class="px-6 py-6">
-                            <span class="text-[8px] bg-primary text-white px-2 py-1 font-bold uppercase tracking-widest">Admin</span>
-                        </td>
-                        <td class="px-6 py-6 text-right space-x-4">
-                            <button class="text-primary hover:underline font-bold uppercase text-[10px]">Editer Rôle</button>
-                            <button class="text-red-600 hover:underline font-bold uppercase text-[10px]">Bannir</button>
-                        </td>
-                    </tr>
+                <tbody class="divide-y divide-gray-50 text-[10px] font-bold">
+                    {% for user in users %}
+                        <tr class="hover:bg-gray-50 uppercase tracking-tighter">
+                            <td class="px-6 py-6 text-primary">{{ user.email }}</td>
+                            <td class="px-6 py-6 text-secondary">
+                                {{ user.roles|join(', ') }}
+                            </td>
+                            <td class="px-6 py-6 text-gray-400">{{ user.createdAt|date('d/m/Y') }}</td>
+                            <td class="px-6 py-6 text-right space-x-4">
+                                <button class="text-primary hover:underline font-bold uppercase">Gérer Rôles</button>
+                                <button class="text-red-600 hover:underline font-bold uppercase">Bannir</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -46,15 +69,37 @@
 
     <!-- Moderation Tab -->
     <div x-show="tab === 'moderation'" x-cloak class="space-y-6">
-        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
-            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucun commentaire en attente de modération.</p>
-        </div>
+        {% if reviews_to_moderate is empty %}
+            <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+                <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucun commentaire en attente de modération.</p>
+            </div>
+        {% else %}
+            <div class="grid grid-cols-1 gap-6">
+                {% for review in reviews_to_moderate %}
+                    <div class="bg-white border border-gray-100 p-8 flex justify-between items-start">
+                        <div>
+                            <span class="block text-[8px] uppercase font-bold text-gray-400 mb-2">Par : {{ review.user.email }} | Sur : {{ review.book.title }}</span>
+                            <div class="flex gap-1 mb-4">
+                                {% for i in 1..5 %}
+                                    <svg class="w-2 h-2 {% if i <= review.rating %}text-primary{% else %}text-gray-100{% endif %}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                {% endfor %}
+                            </div>
+                            <p class="text-xs text-secondary italic">"{{ review.comment }}"</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                             <a href="{{ path('app_review_moderate', {'id': review.id, 'action': 'show'}) }}" class="bg-primary text-white px-6 py-2 font-bold uppercase tracking-widest hover:bg-black transition text-[8px] text-center">Approuver</a>
+                             <a href="{{ path('app_review_moderate', {'id': review.id, 'action': 'hide'}) }}" class="border border-primary text-primary px-6 py-2 font-bold uppercase tracking-widest hover:bg-red-50 transition text-[8px] text-center">Masquer</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <!-- System Status Tab -->
     <div x-show="tab === 'system'" x-cloak class="space-y-6">
         <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
-            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Le système fonctionne de manière optimale.</p>
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Le système fonctionne de manière optimale via Neon (PostgreSQL 17).</p>
         </div>
     </div>
 </div>

@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - BiblioConnect{% endblock %}
+
+{% block body %}
+<div class="bg-surface py-12 border-b border-gray-100">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex mb-8 text-[10px] font-bold uppercase tracking-widest text-secondary overflow-x-auto whitespace-nowrap pb-2">
+            <a href="{{ path('app_librarian_dashboard') }}" class="hover:text-primary transition">Dashboard</a>
+            <span class="mx-2">/</span>
+            <span class="text-primary">{{ title }}</span>
+        </nav>
+        
+        <h2 class="text-xs font-bold uppercase tracking-widest text-secondary mb-2 underline decoration-gray-300 underline-offset-8">Gestion du Catalogue</h2>
+        <h1 class="text-3xl font-bold tracking-tighter text-primary uppercase mb-8">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="bg-white border border-gray-100 p-8 sm:p-12">
+        {{ form_start(form) }}
+            <div class="space-y-8">
+                <div>
+                    <label for="{{ form.title.vars.id }}" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">{{ form.title.vars.label }}</label>
+                    {{ form_widget(form.title, {'attr': {'class': 'w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors'}}) }}
+                    {{ form_errors(form.title, {'attr': {'class': 'text-red-600 text-[10px] mt-1'}}) }}
+                </div>
+
+                <div>
+                    <label for="{{ form.description.vars.id }}" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">{{ form.description.vars.label }}</label>
+                    {{ form_widget(form.description, {'attr': {'class': 'w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors'}}) }}
+                    {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-[10px] mt-1'}}) }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <label for="{{ form.publishedYear.vars.id }}" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">{{ form.publishedYear.vars.label }}</label>
+                        {{ form_widget(form.publishedYear, {'attr': {'class': 'w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors'}}) }}
+                        {{ form_errors(form.publishedYear, {'attr': {'class': 'text-red-600 text-[10px] mt-1'}}) }}
+                    </div>
+                    <div>
+                        <label for="{{ form.totalCopies.vars.id }}" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">{{ form.totalCopies.vars.label }}</label>
+                        {{ form_widget(form.totalCopies, {'attr': {'class': 'w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors'}}) }}
+                        {{ form_errors(form.totalCopies, {'attr': {'class': 'text-red-600 text-[10px] mt-1'}}) }}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="{{ form.language.vars.id }}" class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">{{ form.language.vars.label }}</label>
+                    {{ form_widget(form.language, {'attr': {'class': 'w-full p-4 bg-surface border border-gray-100 focus:border-primary focus:outline-none text-sm transition-colors'}}) }}
+                    {{ form_errors(form.language, {'attr': {'class': 'text-red-600 text-[10px] mt-1'}}) }}
+                </div>
+
+                 <div>
+                    <label class="block text-[10px] uppercase font-bold tracking-widest text-secondary mb-2">Auteurs / Catégories (Sélection Multiple)</label>
+                    <div class="grid grid-cols-2 gap-8">
+                         <div>
+                            {{ form_widget(form.authors, {'attr': {'class': 'w-full p-2 bg-surface border border-gray-100 text-[10px] uppercase font-bold h-32 focus:border-primary focus:outline-none'}}) }}
+                        </div>
+                         <div>
+                            {{ form_widget(form.categories, {'attr': {'class': 'w-full p-2 bg-surface border border-gray-100 text-[10px] uppercase font-bold h-32 focus:border-primary focus:outline-none'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-8 flex justify-end gap-4">
+                    <a href="{{ path('app_librarian_dashboard') }}" class="px-8 py-4 font-bold uppercase tracking-widest text-secondary border border-gray-100 hover:text-primary hover:border-primary transition text-xs text-center">Annuler</a>
+                    <button type="submit" class="bg-primary text-white px-12 py-4 font-bold uppercase tracking-widest hover:bg-black transition text-sm">Enregistrer</button>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

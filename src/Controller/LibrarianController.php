@@ -12,26 +12,58 @@ use Symfony\Component\Routing\Attribute\Route;
 class LibrarianController extends AbstractController
 {
     #[Route('', name: 'app_librarian_dashboard')]
-    public function index(): Response
+    public function index(BookRepository $bookRepository, ReservationRepository $reservationRepository): Response
     {
         return $this->render('librarian/dashboard.html.twig', [
-            'controller_name' => 'LibrarianController',
-        ]);
-    }
-
-    #[Route('/catalog', name: 'app_librarian_catalog')]
-    public function catalog(BookRepository $bookRepository): Response
-    {
-        return $this->render('librarian/catalog.html.twig', [
             'books' => $bookRepository->findAll(),
+            'reservations' => $reservationRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 
-    #[Route('/reservations', name: 'app_librarian_reservations')]
-    public function reservations(ReservationRepository $reservationRepository): Response
+    #[Route('/new', name: 'app_librarian_book_new')]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('librarian/reservations.html.twig', [
-            'reservations' => $reservationRepository->findBy([], ['createdAt' => 'DESC']),
+        $book = new Book();
+        $form = $this->createForm(BookType::class, $book);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Logic for a new book: available copies = total copies at start
+            $book->setAvailableCopies($book->getTotalCopies());
+            
+            $entityManager->persist($book);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Ouvrage ajouté au catalogue.');
+            return $this->redirectToRoute('app_librarian_dashboard');
+        }
+
+        return $this->render('librarian/book_form.html.twig', [
+            'form' => $form,
+            'book' => $book,
+            'title' => 'Ajouter un ouvrage'
+        ]);
+    }
+
+    #[Route('/edit/{id}', name: 'app_librarian_book_edit')]
+    public function edit(Request $request, Book $book, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(BookType::class, $book);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Note: If totalCopies was changed, we might need complex re-calculation 
+            // of availableCopies, but for this simple version we keep it manual.
+            
+            $entityManager->flush();
+            $this->addFlash('success', 'Ouvrage mis à jour.');
+            return $this->redirectToRoute('app_librarian_dashboard');
+        }
+
+        return $this->render('librarian/book_form.html.twig', [
+            'form' => $form,
+            'book' => $book,
+            'title' => 'Modifier l\'ouvrage'
         ]);
     }
 }
