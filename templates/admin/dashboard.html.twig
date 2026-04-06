@@ -1,91 +1,60 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard Admin - BiblioConnect{% endblock %}
+{% block title %}Administration - BiblioConnect{% endblock %}
 
 {% block body %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Header -->
-    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-gray-200 dark:border-navy-800 pb-6 gap-4">
-        <div>
-            <h1 class="font-serif text-4xl font-bold tracking-tight text-navy-900 dark:text-cream mb-2">Interface d'Administration</h1>
-            <p class="text-gray-600 dark:text-gray-400">Gérez le catalogue, les utilisateurs, et modérez les commentaires.</p>
+<div class="bg-surface py-12 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-secondary mb-2 underline decoration-gray-300 underline-offset-8">Accès Total</h2>
+        <h1 class="text-3xl font-bold tracking-tighter text-primary uppercase mb-8">Administration Système</h1>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" x-data="{ tab: 'users' }">
+    <div class="flex gap-12 border-b border-gray-100 mb-16 overflow-x-auto whitespace-nowrap">
+        <button @click="tab = 'users'" :class="tab === 'users' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Rôles & Profils</button>
+        <button @click="tab = 'moderation'" :class="tab === 'moderation' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Modération Commentaires</button>
+        <button @click="tab = 'system'" :class="tab === 'system' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">État du Système</button>
+    </div>
+
+    <!-- Users Management Tab -->
+    <div x-show="tab === 'users'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 overflow-hidden overflow-x-auto">
+             <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface border-b border-gray-100 uppercase tracking-widest text-[10px] font-bold text-secondary">
+                        <th class="px-6 py-4">Utilisateur</th>
+                        <th class="px-6 py-4">Rôle</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-6 font-bold uppercase tracking-tighter text-primary">{{ app.user.email }}</td>
+                        <td class="px-6 py-6">
+                            <span class="text-[8px] bg-primary text-white px-2 py-1 font-bold uppercase tracking-widest">Admin</span>
+                        </td>
+                        <td class="px-6 py-6 text-right space-x-4">
+                            <button class="text-primary hover:underline font-bold uppercase text-[10px]">Editer Rôle</button>
+                            <button class="text-red-600 hover:underline font-bold uppercase text-[10px]">Bannir</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold text-navy-900 dark:text-white">{{ total_users|default(0) }}</h3>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Utilisateurs</p>
-                </div>
-            </div>
-        </div>
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold text-navy-900 dark:text-white">{{ total_books|default(0) }}</h3>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ouvrages</p>
-                </div>
-            </div>
-        </div>
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold text-navy-900 dark:text-white">{{ total_reservations|default(0) }}</h3>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Réservations</p>
-                </div>
-            </div>
-        </div>
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold text-navy-900 dark:text-white">5</h3>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Avis signalés</p>
-                </div>
-            </div>
+    <!-- Moderation Tab -->
+    <div x-show="tab === 'moderation'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucun commentaire en attente de modération.</p>
         </div>
     </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Actions Card -->
-        <div class="glass-panel rounded-xl border border-gray-100 dark:border-navy-800 overflow-hidden">
-            <div class="bg-gray-50 dark:bg-navy-800/50 px-6 py-4 border-b border-gray-100 dark:border-navy-800">
-                <h3 class="font-serif font-bold text-lg text-navy-900 dark:text-white">Actions Rapides</h3>
-            </div>
-            <div class="p-6 grid gap-4">
-                <a href="#" class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-navy-700 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition group">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <span class="font-medium text-gray-900 dark:text-gray-200 group-hover:text-amber-600 dark:group-hover:text-amber-400">Ajouter un ouvrage</span>
-                    </div>
-                </a>
-                <a href="#" class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-navy-700 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition group">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        <span class="font-medium text-gray-900 dark:text-gray-200 group-hover:text-amber-600 dark:group-hover:text-amber-400">Gérer les membres</span>
-                    </div>
-                </a>
-                <a href="#" class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-navy-700 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition group">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        <span class="font-medium text-gray-900 dark:text-gray-200 group-hover:text-amber-600 dark:group-hover:text-amber-400">Modération des avis</span>
-                    </div>
-                </a>
-            </div>
+
+    <!-- System Status Tab -->
+    <div x-show="tab === 'system'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Le système fonctionne de manière optimale.</p>
         </div>
     </div>
 </div>

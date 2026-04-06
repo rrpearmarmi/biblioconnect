@@ -36,6 +36,7 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/librarian, roles: ROLE_LIBRARIAN }
         - { path: ^/dashboard, roles: ROLE_USER }
+        - { path: ^/books, roles: ROLE_USER }
 
 when@test:
     security:

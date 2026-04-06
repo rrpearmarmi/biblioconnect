@@ -3,137 +3,50 @@
 {% block title %}Mon Espace - BiblioConnect{% endblock %}
 
 {% block body %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Header -->
-    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-gray-200 dark:border-navy-800 pb-6 gap-4">
-        <div>
-            <h1 class="font-serif text-4xl font-bold tracking-tight text-navy-900 dark:text-cream mb-2">Bonjour, {{ user.firstName }} !</h1>
-            <p class="text-gray-600 dark:text-gray-400">Bienvenue dans votre espace personnel. Gérez vos emprunts, vos réservations et vos favoris.</p>
-        </div>
-        <div class="flex gap-3">
-            <a href="{{ path('app_user_profile') }}" class="px-4 py-2 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-700 dark:text-gray-200 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-navy-700 transition text-sm font-medium">Modifier mon profil</a>
-        </div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Emprunts en cours</p>
-                    <h3 class="text-3xl font-bold text-navy-900 dark:text-white">
-                        {{ reservations|filter(r => r.status == 'active')|length }}
-                    </h3>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                </div>
-            </div>
-        </div>
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Réservations en attente</p>
-                    <h3 class="text-3xl font-bold text-navy-900 dark:text-white">
-                        {{ reservations|filter(r => r.status == 'pending')|length }}
-                    </h3>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-            </div>
-        </div>
-        <div class="glass-panel rounded-xl p-6 border border-gray-100 dark:border-navy-800">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Historique des lectures</p>
-                    <h3 class="text-3xl font-bold text-navy-900 dark:text-white">
-                        {{ reservations|filter(r => r.status == 'returned')|length }}
-                    </h3>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabs with Alpine -->
-    <div x-data="{ tab: 'active' }" class="mt-8">
-        <div class="border-b border-gray-200 dark:border-navy-800 mb-6">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button @click="tab = 'active'" :class="tab === 'active' ? 'border-amber-500 text-amber-600 dark:text-amber-500' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap flex py-4 px-1 border-b-2 font-medium tracking-wide">
-                    En cours <span class="ml-2 bg-gray-100 dark:bg-navy-800 text-gray-600 dark:text-gray-300 py-0.5 px-2 rounded-full text-xs hidden sm:inline-block">{{ reservations|filter(r => r.status in ['active', 'pending'])|length }}</span>
-                </button>
-                <button @click="tab = 'history'" :class="tab === 'history' ? 'border-amber-500 text-amber-600 dark:text-amber-500' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap flex py-4 px-1 border-b-2 font-medium tracking-wide">
-                    Historique
-                </button>
-                <button @click="tab = 'favorites'" :class="tab === 'favorites' ? 'border-amber-500 text-amber-600 dark:text-amber-500' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap flex py-4 px-1 border-b-2 font-medium tracking-wide">
-                    Mes Favoris
-                </button>
-                <button @click="tab = 'reviews'" :class="tab === 'reviews' ? 'border-amber-500 text-amber-600 dark:text-amber-500' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap flex py-4 px-1 border-b-2 font-medium tracking-wide">
-                    Mes Avis
-                </button>
-            </nav>
-        </div>
-
-        <!-- Active/Pending Tab -->
-        <div x-show="tab === 'active'" class="space-y-4 shadow-sm bg-white dark:bg-navy-900 rounded-xl overflow-hidden border border-gray-200 dark:border-navy-700">
-            {% set activeRes = reservations|filter(r => r.status in ['active', 'pending']) %}
-            {% if activeRes|length > 0 %}
-                <ul role="list" class="divide-y divide-gray-200 dark:divide-navy-800">
-                    {% for res in activeRes %}
-                        <li class="p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-navy-800/50 transition">
-                            <div class="flex items-center space-x-4">
-                                <div class="flex-shrink-0 w-16 h-24 bg-gray-200 dark:bg-navy-800 rounded shadow overflow-hidden">
-                                    {% if res.book.coverImage %}
-                                        <img class="w-full h-full object-cover" src="{{ asset('uploads/covers/' ~ res.book.coverImage) }}" alt="">
-                                    {% else %}
-                                        <div class="w-full h-full flex flex-col justify-center items-center text-[10px] text-gray-500 font-bold p-1 text-center leading-tight">Couverture absente</div>
-                                    {% endif %}
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-lg font-serif font-bold text-navy-900 dark:text-white truncate">
-                                        <a href="{{ path('app_book_detail', {id: res.book.id}) }}">{{ res.book.title }}</a>
-                                    </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">{% for a in res.book.authors %}{{ a.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-                                    
-                                    <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                        <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <p>Du <time datetime="{{ res.startDate|date('Y-m-d') }}">{{ res.startDate|date('d/m/Y') }}</time> au <time datetime="{{ res.endDate|date('Y-m-d') }}" class="font-medium {% if res.endDate < date() %}text-red-500{% endif %}">{{ res.endDate|date('d/m/Y') }}</time></p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider
-                                        {% if res.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800
-                                        {% elseif res.status == 'pending' %}bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800
-                                        {% endif %}">
-                                        {{ res.status == 'active' ? 'Emprunté' : 'En attente' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="text-center py-16">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">Aucun emprunt en cours</h3>
-                    <p class="mt-1 text-sm text-gray-500">Allez explorer le catalogue pour trouver votre prochaine lecture !</p>
-                    <div class="mt-6">
-                        <a href="{{ path('app_book_catalog') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-navy-950 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
-                            Parcourir le catalogue
-                        </a>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
+<div class="bg-surface py-12 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-secondary mb-2 underline decoration-gray-300 underline-offset-8">Espace Client</h2>
+        <h1 class="text-3xl font-bold tracking-tighter text-primary uppercase mb-8">Tableau de Bord</h1>
         
-        <!-- Other tabs (simplified for mock) -->
-        <div x-show="tab === 'history'" x-cloak class="p-12 text-center text-gray-500 glass-panel rounded-xl">Historique : En cours de développement</div>
-        <div x-show="tab === 'favorites'" x-cloak class="p-12 text-center text-gray-500 glass-panel rounded-xl">Favoris : En cours de développement</div>
-        <div x-show="tab === 'reviews'" x-cloak class="p-12 text-center text-gray-500 glass-panel rounded-xl">Avis : En cours de développement</div>
+        <div class="flex items-center gap-4 py-8">
+            <div class="w-16 h-16 bg-primary text-white flex items-center justify-center font-bold text-xl uppercase tracking-tighter">
+                {{ app.user.firstName[:1] }}{{ app.user.lastName[:1] }}
+            </div>
+            <div>
+                <p class="text-lg font-bold tracking-tighter uppercase text-primary leading-none">{{ app.user.firstName }} {{ app.user.lastName }}</p>
+                <p class="text-xs uppercase font-bold tracking-widest text-gray-400 mt-2 italic">{{ app.user.email }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" x-data="{ tab: 'reservations' }">
+    <div class="flex gap-12 border-b border-gray-100 mb-16 overflow-x-auto whitespace-nowrap">
+        <button @click="tab = 'reservations'" :class="tab === 'reservations' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Mes Réservations</button>
+        <button @click="tab = 'favorites'" :class="tab === 'favorites' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Mes Favoris</button>
+        <button @click="tab = 'reviews'" :class="tab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-primary'" class="pb-6 border-b-2 text-xs font-bold uppercase tracking-widest transition duration-200">Avis & Notes</button>
+    </div>
+
+    <!-- Reservations Tab -->
+    <div x-show="tab === 'reservations'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest mb-6">Vous n'avez aucune réservation active.</p>
+            <a href="{{ path('app_book_catalog') }}" class="bg-primary text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-black transition text-xs">Parcourir le catalogue</a>
+        </div>
+    </div>
+
+    <!-- Favorites Tab -->
+    <div x-show="tab === 'favorites'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Votre bibliothèque est vide.</p>
+        </div>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div x-show="tab === 'reviews'" x-cloak class="space-y-6">
+        <div class="bg-white border border-gray-100 p-8 text-center sm:p-24 border-dashed">
+            <p class="text-secondary text-xs uppercase font-bold tracking-widest">Aucune critique publiée.</p>
+        </div>
     </div>
 </div>
 {% endblock %}

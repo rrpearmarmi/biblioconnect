@@ -15,7 +15,7 @@ class LoginSuccessListener
     ) {
     }
 
-    public function onLoginSuccessEvent(LoginSuccessEvent $event): void
+    public function __invoke(LoginSuccessEvent $event): void
     {
         $user = $event->getUser();
         $roles = $user->getRoles();

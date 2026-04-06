@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BookController extends AbstractController
 {
@@ -23,6 +24,7 @@ class BookController extends AbstractController
     }
 
     #[Route('/books', name: 'app_book_catalog')]
+    #[IsGranted('ROLE_USER')]
     public function catalog(Request $request, BookRepository $bookRepository): Response
     {
         $query = $request->query->get('q');
@@ -45,6 +47,7 @@ class BookController extends AbstractController
     }
 
     #[Route('/books/{id}', name: 'app_book_detail')]
+    #[IsGranted('ROLE_USER')]
     public function detail(Book $book): Response
     {
         return $this->render('book/detail.html.twig', [
